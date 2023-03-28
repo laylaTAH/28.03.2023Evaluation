@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  ecommerce:
+    container_name: ecomm-app
+    restart: always
+    build: ./ecommerce-flask/.
+    networks:
+      - web_network
+  backdash:
+    restart: always
+    env_file: ./flask-argon-dashboard/.env
+    build: ./flask-argon-dashboard/.
+    ports: 
+      - "9000-9005:8085"
+    deploy:
+      replicas: 5  
+    networks:
+      - web_network
+      - db_network
+  backend:
+    container_name: back
+    restart: always
+    env_file: ./web-backend-flask/.env
+    build: ./web-backend-flask/.
+    networks:
+      - web_network
+      - db_network
+  nginx:
+    container_name: nginx
+    restart: always
+    image: "nginx:alpine-slim"
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - web_network
+networks:
+  db_network:
+    driver: bridge
+  web_network:
+    driver: bridge
+ 
